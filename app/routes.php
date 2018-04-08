@@ -6,7 +6,7 @@ $app->get('/', 'HomeController:index')->setName('home');
 
 $app->get('/article', 'ArticleController:index');
 
-$app->get('/test', 'HomeController:test');
+$app->post('/test', 'HomeController:test');
 $app->get('/user', 'UserController:index');
 
 $app->group('', function () {

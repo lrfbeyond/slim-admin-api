@@ -1,4 +1,5 @@
 <?php 
+//use Respect\Validation\Validator as v;
 
 require_once __DIR__ . '/database.php';
 
@@ -41,3 +42,5 @@ $container['HomeController'] = function($container) {
 $container['ArticleController'] = function($container) {
     return new \App\Controllers\ArticleController($container);
 };
+
+//v::with('App\\Validation\\Rules\\');
