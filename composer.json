@@ -1,0 +1,24 @@
+{
+    "name": "lrfbeyond/slim-admin-api",
+    "description": "Slim Framework 3 admin api.",
+    "type": "project",
+    "keywords": ["slim", "admin", "api"],
+    "homepage": "https://github.com/lrfbeyond/slim-admin-api",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "yueguangguang",
+            "email": "13966913@qq.com"
+        }
+    ],
+    "require": {
+        "slim/slim": "3.0",
+        "monolog/monolog": "^1.23",
+        "illuminate/database": "^5.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    }
+}
