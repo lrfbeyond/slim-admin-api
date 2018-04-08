@@ -6,6 +6,8 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 use App\Models\Article;
 use App\Models\Catelog;
+use Respect\Validation\Validator as v;
+use App\Validate\Article as valid;
 
 class ArticleController extends Controller
 {
@@ -65,6 +67,19 @@ class ArticleController extends Controller
     {
         $res['result'] = 'failed';
         if ($request->isPost()) {
+            $rules = [
+                'title' => v::stringType()->notEmpty()->length(null, 64),
+                'cid' => v::intVal()->notEmpty(),
+                'content' => v::notEmpty(),
+            ];
+
+            $valid = new valid;
+            $validMsg = $valid->valid($request, $rules);
+            if (!empty($validMsg)) {
+                $res['msg'] = $validMsg;
+                return $response->withJson($res);
+            }
+            
             $id = $request->getParam('id');
             if ($id > 0) {
                 // 修改
@@ -79,6 +94,7 @@ class ArticleController extends Controller
             } else {
                 // 新增
                 $post = $request->getParsedBody();
+
                 $art = new Article;
                 $art->title = $post['title'];
                 $art->content = $post['content'];
@@ -119,5 +135,12 @@ class ArticleController extends Controller
             $res['msg'] = '非法提交';
         }
         return $response->withJson($res);
+    }
+
+    public function test()
+    {
+        $number = 123;
+        $rs = v::numeric()->validate($number); 
+        print_r($rs);
     }
 }
