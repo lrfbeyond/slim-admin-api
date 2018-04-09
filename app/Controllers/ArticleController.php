@@ -8,6 +8,7 @@ use App\Models\Article;
 use App\Models\Catelog;
 use Respect\Validation\Validator as v;
 use App\Validate\Article as valid;
+use App\Controllers\LogController as Log;
 
 class ArticleController extends Controller
 {
@@ -101,6 +102,7 @@ class ArticleController extends Controller
                 $art->save();
                 $aid = $art->id;
                 if ($aid > 0) {
+                    Log::addLog('新增文章id:'.$aid.'【'.$post['title'].'】');
                     $res['result'] = 'success';
                 } else {
                     $res['msg'] = '新增失败';

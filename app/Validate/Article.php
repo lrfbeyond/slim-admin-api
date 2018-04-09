@@ -11,11 +11,11 @@ class Article extends Validator
             'length' => '标题太长',
         ],
         'cid' => [
-            'intVal' => '必须为数字',
-            'notEmpty' => '不能为空',
+            'intVal' => '类别必须为数字',
+            'notEmpty' => '类别不能为空',
         ],
         'content' => [
-            'notEmpty' => '不能为空',
+            'notEmpty' => '文章内容不能为空',
         ]
     ];
 }
