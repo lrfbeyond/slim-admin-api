@@ -88,6 +88,7 @@ class ArticleController extends Controller
                 $art = new Article;
                 $rs = $art->where('id', $id)->update($post);
                 if ($rs) {
+                    Log::addLog('修改文章id:'.$id.'【'.$post['title'].'】');
                     $res['result'] = 'success';
                 } else {
                     $res['msg'] = '修改失败';

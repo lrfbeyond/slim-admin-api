@@ -15,7 +15,7 @@ class HomeController extends Controller
     public function index($req, $res)
     { 
         $this->logger->info("haha index");
-        $rs = Article::find(1);
+        $rs = Article::find(502);
         return $rs->title;
     }
 
