@@ -1,14 +1,14 @@
 <?php 
 
 //数据签名认证
-function dataAuthSign($data){
+function dataAuthSign($data, $key){
     //数据类型检测
     if(!is_array($data)){
         $data = (array)$data;
     }
     ksort($data); //排序
     $code = http_build_query($data); //url编码并生成query字符串
-    $sign = sha1($code); //生成签名
+    $sign = sha1($code.$key); //生成签名
     return $sign;
 }
 
@@ -64,5 +64,15 @@ function isMobile(){
         return true;
     } else {
         return false;
+    }
+}
+
+//防止注入
+function injectCheck($sql_str) { 
+    $check = preg_match('/select|insert|update|delete|\'|\/\*|\*|\.\.\/|\.\/|union|into|load_file|outfile/i', $sql_str);
+    if ($check) {
+        return 202; //疑似恶意攻击
+    } else {
+        return $sql_str;
     }
 }

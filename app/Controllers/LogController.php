@@ -45,7 +45,7 @@ class LogController extends Controller
     static public function addLog($str)
     {
         $log = new Log;
-        $log->username = 'abc';
+        $log->username = $_SESSION['admin_auth']['username'];
         $log->logip = getip();
         $log->event = $str;
         $log->created_at = date('Y-m-d H:i:s');

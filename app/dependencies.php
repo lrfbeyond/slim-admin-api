@@ -11,6 +11,11 @@ $container['db'] = function ($container) use ($capsule) {
     return $capsule;
 };
 
+$container['safekey'] = function ($c) {
+    $settings = $c->get('settings');
+    return $settings['safekey'];
+};
+
 $container['logger'] = function($c) {
     $settings = $c->get('settings');
     $logger = new \Monolog\Logger($settings['logger']['name']);
