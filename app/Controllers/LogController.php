@@ -46,7 +46,7 @@ class LogController extends Controller
     {
         $log = new Log;
         $log->username = 'abc';
-        $log->logip = '192.168.1.1';
+        $log->logip = getip();
         $log->event = $str;
         $log->created_at = date('Y-m-d H:i:s');
         $log->save();
