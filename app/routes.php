@@ -10,7 +10,7 @@ $app->get('/', 'HomeController:index')->setName('home')->add(new TestMiddleware(
 $app->get('/article', 'ArticleController:index');
 
 $app->post('/test', 'HomeController:test');
-$app->get('/user', 'UserController:index');
+$app->get('/user', 'MemberController:index');
 
 $app->group('', function () {
     $this->get('/api/article', 'ArticleController:index');
@@ -19,6 +19,12 @@ $app->group('', function () {
     $this->post('/api/article/delete', 'ArticleController:delete');
     $this->post('/api/auth/editpass', 'AuthController:editpass');
     $this->post('/api/auth/logout', 'AuthController:logout');
+
+    $this->get('/api/member', 'MemberController:index');
+    $this->get('/api/member/{id:[0-9]+}', 'MemberController:detail');
+    $this->post('/api/member/update', 'MemberController:update');
+    $this->post('/api/member/delete', 'MemberController:delete');
+    
 })->add(new AuthMiddleware($container));
 
 $app->post('/api/auth', 'AuthController:chkLogin');

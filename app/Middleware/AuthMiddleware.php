@@ -15,13 +15,13 @@ class AuthMiddleware
     {
         //$response->getBody()->write('BEFORE');
         $hasLogin = $this->chkSign();
-        if (false === $hasLogin) {
-            $data = [
-                'code' => 101,
-                'msg' => '未登录'
-            ];
-            return $response->withJson($data);
-        }
+        // if (false === $hasLogin) {
+        //     $data = [
+        //         'code' => 101,
+        //         'msg' => '未登录'
+        //     ];
+        //     return $response->withJson($data);
+        // }
         
         $response = $next($request, $response);
         //$response->getBody()->write('AFTER');

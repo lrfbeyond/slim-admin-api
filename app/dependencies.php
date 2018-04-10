@@ -7,6 +7,32 @@ require_once __DIR__ . '/function.php';
 
 $container = $app->getContainer();
 
+// $container['errorHandler'] = function ($c) {
+//     return function ($request, $response, $exception) use ($c) {
+//         return $c['response']->withStatus(500)
+//                              ->withHeader('Content-Type', 'text/html')
+//                              ->write('Something went wrong!');
+//     };
+// };
+
+$container['notFoundHandler'] = function ($c) {
+    return function ($request, $response) use ($c) {
+        return $c['response']
+            ->withStatus(404)
+            ->withHeader('Content-Type', 'text/html')
+            ->write('找不到页面');
+    };
+};
+
+$container['notAllowedHandler'] = function ($c) {
+    return function ($request, $response, $methods) use ($c) {
+        return $c['response']
+            ->withStatus(405)
+            ->withHeader('Content-type', 'text/html')
+            ->write('非法请求');
+        };
+};
+
 $container['db'] = function ($container) use ($capsule) {
     return $capsule;
 };
@@ -37,8 +63,8 @@ $container['logger'] = function($c) {
 //     return new App\Controller\HomeController($c);
 // };
 
-$container['UserController'] = function ($container) {
-    return new \App\Controllers\UserController($container);
+$container['MemberController'] = function ($container) {
+    return new \App\Controllers\MemberController($container);
 };
 
 $container['HomeController'] = function($container) {
