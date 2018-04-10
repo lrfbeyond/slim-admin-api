@@ -1,8 +1,9 @@
 <?php 
 //use Respect\Validation\Validator as v;
+session_start();
 
 require_once __DIR__ . '/database.php';
-
+require_once __DIR__ . '/function.php';
 
 $container = $app->getContainer();
 
@@ -41,6 +42,10 @@ $container['HomeController'] = function($container) {
 
 $container['ArticleController'] = function($container) {
     return new \App\Controllers\ArticleController($container);
+};
+
+$container['AuthController'] = function($container) {
+    return new \App\Controllers\AuthController($container);
 };
 
 //v::with('App\\Validation\\Rules\\');

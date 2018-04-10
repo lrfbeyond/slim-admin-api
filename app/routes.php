@@ -2,7 +2,10 @@
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
-$app->get('/', 'HomeController:index')->setName('home');
+use App\Middleware\TestMiddleware;
+use App\Middleware\AuthMiddleware;
+
+$app->get('/', 'HomeController:index')->setName('home')->add(new TestMiddleware($container));
 
 $app->get('/article', 'ArticleController:index');
 
@@ -14,7 +17,11 @@ $app->group('', function () {
     $this->get('/api/article/{id:[0-9]+}', 'ArticleController:detail');
     $this->post('/api/article/update', 'ArticleController:update');
     $this->post('/api/article/delete', 'ArticleController:delete');
-});
+    $this->post('/api/auth/editpass', 'AuthController:editpass');
+    $this->post('/api/auth/logout', 'AuthController:logout');
+})->add(new AuthMiddleware($container));
+
+$app->post('/api/auth', 'AuthController:chkLogin');
 
 
 // $app->get('/hello/{name}', function (Request $request, Response $response) {
