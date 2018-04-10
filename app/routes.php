@@ -22,7 +22,7 @@ $app->group('', function () {
 })->add(new AuthMiddleware($container));
 
 $app->post('/api/auth', 'AuthController:chkLogin');
-
+$app->get('/api/auth/captcha', 'AuthController:captcha');
 
 // $app->get('/hello/{name}', function (Request $request, Response $response) {
 //     $name = $request->getAttribute('name');

@@ -8,6 +8,7 @@ use App\Models\Admin;
 use Respect\Validation\Validator as v;
 use App\Validate\Admin as valid;
 use App\Controllers\LogController as Log;
+use Gregwar\Captcha\CaptchaBuilder;
 
 class AuthController extends Controller
 {
@@ -25,6 +26,11 @@ class AuthController extends Controller
             $username = injectCheck(htmlentities($post['username']));
             $rs = Admin::where('admin_name', $username)->where('is_delete', 0)->first(['id','admin_name','password']);
             if ($rs) {
+                // 验证码
+                if ($post['code'] !== $_SESSION['hw-cphrase']) {
+                    $res['msg'] = '验证码错误';
+                    return $response->withJson($res);
+                }
                 // 验证密码
                 if (password_verify($post['password'], $rs['password']) === false) {
                     $res['msg'] = '用户名或密码错误';
@@ -118,6 +124,17 @@ class AuthController extends Controller
         $res['result'] = 'success';
         Log::addLog('用户退出:【'.$username.'】');
         return $response->withJson($res);
+    }
+
+    public function captcha()
+    {
+        $builder = new CaptchaBuilder;
+        $builder->build(120,32);
+        //$builder->save('out.jpg');
+
+        $_SESSION['hw-cphrase'] = $builder->getPhrase();
+        header('Content-type: image/jpeg');
+        $builder->output();
     }
 }
 
