@@ -18,7 +18,7 @@ class HomeController extends Controller
     }
 
     // 获取最新操作日志
-    public function getOptLog()
+    public function getOptLog($request, $response)
     {
         $res['result'] = 'failed';
         $user_auth = $_SESSION['admin_auth'];
@@ -28,15 +28,16 @@ class HomeController extends Controller
             $res['list'] = $list;
             $res['result'] = 'success';
         } 
-        return $res;
+        return $response->withJson($res);
     }
 
     // 饼状图-资讯各分类总数
-    public function getPieData()
+    public function getPieData($request, $response)
     {
         $res['result'] = 'failed';
         try {
-            $cate = Catelog::where('parentID',0)->where('is_delete', 0)->get(['id', 'title']);
+            $catelog = new Catelog;
+            $cate = $catelog->getCate();
             $data = [];
             foreach ($cate as $key => $val) {
                 $data[] = [
@@ -49,16 +50,16 @@ class HomeController extends Controller
         } catch (\Exception $e) {
             $res['msg'] = '出错了';
         }
-        return $res;
+        return $response->withJson($res);
     }
 
     // 柱状图-资讯统计-最近30天
-    public function getBarData()
+    public function getBarData($request, $response)
     {
         $res['result'] = 'failed';
         //try {
-            $cate = Catelog::where('parentID',0)->where('is_delete', 0)->get(['id', 'title']);
-            //
+            $catelog = new Catelog;
+            $cate = $catelog->getCate();
             $data = [];
             foreach ($cate as $key => $val) {
                 for ($i = 29; $i >= 0; $i--) {
@@ -77,7 +78,14 @@ class HomeController extends Controller
         // } catch (\Exception $e) {
         //     $res['msg'] = '出错了';
         // }
-        return $res;
+        return $response->withJson($res);
+    }
+
+    public function getCate()
+    {
+        $catelog = new Catelog;
+        $cate = $catelog->getCateTitle();
+        return $response->withJson($res);
     }
 
     public function test2($req, $res)

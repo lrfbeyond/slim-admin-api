@@ -13,13 +13,17 @@ $app->post('/test', 'HomeController:test');
 $app->get('/user', 'MemberController:index');
 
 $app->group('', function () {
+    $this->get('/api/home/getOptLog', 'HomeController:getOptLog');
+    $this->get('/api/home/getPieData', 'HomeController:getPieData');
+    $this->get('/api/home/getBarData', 'HomeController:getBarData');
+
     $this->get('/api/article', 'ArticleController:index');
     $this->get('/api/article/{id:[0-9]+}', 'ArticleController:detail');
     $this->post('/api/article/update', 'ArticleController:update');
     $this->post('/api/article/delete', 'ArticleController:delete');
     $this->get('/api/article/getCate', 'ArticleController:getCate');
     $this->get('/api/article/getTags', 'ArticleController:getTags');
-    
+
     $this->post('/api/auth/editpass', 'AuthController:editpass');
     $this->post('/api/auth/logout', 'AuthController:logout');
 
