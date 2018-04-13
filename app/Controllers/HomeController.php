@@ -74,17 +74,11 @@ class HomeController extends Controller
             }
             $res['date'] = $dates;
             $res['data'] = $data;
+            $res['cate'] = $cate;
             $res['result'] = 'success';
         // } catch (\Exception $e) {
         //     $res['msg'] = '出错了';
         // }
-        return $response->withJson($res);
-    }
-
-    public function getCate()
-    {
-        $catelog = new Catelog;
-        $cate = $catelog->getCateTitle();
         return $response->withJson($res);
     }
 
