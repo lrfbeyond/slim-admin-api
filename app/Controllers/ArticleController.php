@@ -154,7 +154,7 @@ class ArticleController extends Controller
 
     public function getCate($request, $response)
     {
-        $res = Catelog::where('parentID',0)->where('isshow', 1)->get(['id', 'title']);
+        $res = Catelog::where('parentID',0)->where('is_delete', 0)->get(['id', 'title']);
         return $response->withJson($res);
     }
 

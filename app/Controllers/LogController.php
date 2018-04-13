@@ -46,6 +46,7 @@ class LogController extends Controller
     {
         $log = new Log;
         $log->username = $_SESSION['admin_auth']['username'];
+        $log->user_id = $_SESSION['admin_auth']['userid'];
         $log->logip = getip();
         $log->event = $str;
         $log->created_at = date('Y-m-d H:i:s');

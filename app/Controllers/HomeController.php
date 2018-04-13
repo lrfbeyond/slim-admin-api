@@ -5,10 +5,8 @@ use Psr\Log\LoggerInterface;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use App\Models\Article;
-use Respect\Validation\Validator as v;
-//use Respect\Validation\Exceptions\NestedValidationException;
-
-use App\Validate\Article as valid;
+use App\Models\Log;
+use App\Models\Catelog;
 
 class HomeController extends Controller
 {
@@ -17,6 +15,69 @@ class HomeController extends Controller
         $this->logger->info("haha index");
         $rs = Article::find(502);
         return $rs->title;
+    }
+
+    // 获取最新操作日志
+    public function getOptLog()
+    {
+        $res['result'] = 'failed';
+        $user_auth = $_SESSION['admin_auth'];
+        //print_r($user_auth);
+        if (!empty($user_auth)) {
+            $list = Log::where('user_id', $user_auth['userid'])->orderBy('id', 'desc')->take(8)->get(['id','event','created_at']);
+            $res['list'] = $list;
+            $res['result'] = 'success';
+        } 
+        return $res;
+    }
+
+    // 饼状图-资讯各分类总数
+    public function getPieData()
+    {
+        $res['result'] = 'failed';
+        try {
+            $cate = Catelog::where('parentID',0)->where('is_delete', 0)->get(['id', 'title']);
+            $data = [];
+            foreach ($cate as $key => $val) {
+                $data[] = [
+                    'name' => $val['title'],
+                    'value' => Article::where('cid', $val['id'])->where('is_delete', 0)->count()
+                ];
+            }
+            $res['data'] = $data;
+            $res['result'] = 'success';
+        } catch (\Exception $e) {
+            $res['msg'] = '出错了';
+        }
+        return $res;
+    }
+
+    // 柱状图-资讯统计-最近30天
+    public function getBarData()
+    {
+        $res['result'] = 'failed';
+        //try {
+            $cate = Catelog::where('parentID',0)->where('is_delete', 0)->get(['id', 'title']);
+            //
+            $data = [];
+            foreach ($cate as $key => $val) {
+                for ($i = 29; $i >= 0; $i--) {
+                    $date = date('Y-m-d', strtotime('-'.$i.' days'));
+                    $data[$key][] = Article::where('cid', $val['id'])->where('created_at', 'like', $date.'%')->where('is_delete', 0)->count();
+                    
+                }
+            }
+            $dates = [];
+            for ($i = 29; $i >= 0; $i--) {
+                $dates[] = date('m月d日', strtotime('-'.$i.' days'));
+            }
+            $res['date'] = $dates;
+            $res['data'] = $data;
+            $res['result'] = 'success';
+        // } catch (\Exception $e) {
+        //     $res['msg'] = '出错了';
+        // }
+        return $res;
     }
 
     public function test2($req, $res)
@@ -70,94 +131,6 @@ class HomeController extends Controller
 
     public function test($request, $response)
     {
-        // $number = '123x';
-        // $rs = v::numeric()->validate($number); 
-        //print_r($rs);
-        $rules = [
-            'email' => v::noWhitespace()->notEmpty()->email(),
-            'name' => v::noWhitespace()->notEmpty()->alpha(),
-            'password' => v::noWhitespace()->notEmpty(),
-        ];
-
-        $valid = new valid;
-
-        $rs = $valid->valid($request, $rules);
-        print_r($rs);
-
-        // $usernameValidator = v::alnum()->noWhitespace()->length(3, 15);
-        // $rs = $usernameValidator->validate('2ae w'); // true
-        // echo $rs;
-
-        // $user = new Article;
-        // $user->name = 'Alexandre';
-        // $user->birthdate = '1987-07-01';
-
-        // $userValidator = v::attribute('name', v::stringType()->length(1,32))
-        //           ->attribute('birthdate', v::date()->age(18));
-
-        // $rs = $userValidator->validate($user); // true
-        // echo $rs;
-
-        // try {
-        //     $usernameValidator = v::alnum()->noWhitespace()->length(3, 15);
-        //     $usernameValidator->assert('re');
-        // } catch(NestedValidationException $exception) {
-        //    //echo $exception->getFullMessage();
-        //    //print_r($exception->getMessages());
-        //    //print_r($exception->findMessages(['alnum', 'noWhitespace', 'length']));
-
-        //    $errors = $exception->findMessages([
-        //         'alnum' => '{{name}} must contain only letters and digits',
-        //         'length' => 'must not have more than 15 chars',
-        //         'noWhitespace' => '{{name}} cannot contain spaces'
-        //     ]);
-        //    print_r($errors);
-        //}
-
-        // $rules = [
-        //     'email' => v::noWhitespace()->notEmpty()->email(),
-        //     'name' => v::noWhitespace()->notEmpty()->alpha(),
-        //     'password' => v::noWhitespace()->notEmpty(),
-        // ];
-        // $messages = [
-        //     'email' => [
-        //         'noWhitespace' => '邮箱不能有空格',
-        //         'notEmpty' => '邮箱不能为空',
-        //         'email' => '邮箱格式不对',
-        //     ],
-        //     'name' => [
-        //         'noWhitespace' => '不能有空格',
-        //         'notEmpty' => '不能为空',
-        //         'alpha' => '必须字母',
-        //     ],
-        //     'password' => [
-        //         'noWhitespace' => '不能有空格',
-        //         'notEmpty' => '不能为空',
-        //     ]
-        // ];
-        
-        // $errors = [];
-        // $errorMsg = '';
-        // foreach ($rules as $field => $rule) {
-        //     try {
-        //         $rule->assert($request->getParam($field));
-        //     } catch (NestedValidationException $e) {
-        //         $errors[$field] = $e->findMessages(
-        //             $messages[$field]
-        //         );
-        //     }
-        //     foreach ($errors[$field] as $key => $val) {
-        //         if (!empty($val)) {
-        //             $errorMsg = $val;
-        //             break;
-        //         }
-        //     }
-        //     if (!empty($errorMsg)) {
-        //         break;
-        //     }
-        // }
-        
-        // print_r($errorMsg);
-
+        //
     }
 }
