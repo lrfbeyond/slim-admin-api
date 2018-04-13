@@ -24,7 +24,7 @@ class AuthController extends Controller
         if ($request->isPost()) {
             $post = $request->getParsedBody();
             $username = injectCheck(htmlentities($post['username']));
-            $rs = Admin::where('admin_name', $username)->where('is_delete', 0)->first(['id','admin_name','password']);
+            $rs = Admin::where('admin_name', $username)->where('is_delete', 0)->first(['id','admin_name','password','realname']);
             if ($rs) {
                 // 验证码
                 if ($post['code'] !== $_SESSION['hw-cphrase']) {
@@ -49,6 +49,7 @@ class AuthController extends Controller
                     //$token = dataAuthSign($auth, $key);
                     //$_SESSION['admin_auth_sign'] = $token;
                     $res['result'] = 'success';
+                    $res['uname'] = $rs['realname'];
                     $res['token'] = dataAuthSign($auth, $key);
                     Log::addLog('用户登录成功:【'.$post['username'].'】');
                 } else {

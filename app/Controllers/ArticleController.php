@@ -6,6 +6,7 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 use App\Models\Article;
 use App\Models\Catelog;
+use App\Models\Tag;
 use Respect\Validation\Validator as v;
 use App\Validate\Article as valid;
 use App\Controllers\LogController as Log;
@@ -23,23 +24,31 @@ class ArticleController extends Controller
             $where['cid'] = $cate;
         }
 
+        $date = $request->getParam('date');
+        if (!empty($date)) {
+            $where[] = ['created_at', 'like', $date.'%'];
+        }
+
         $keys = $request->getParam('keys');
         if (!empty($keys)) {
             $where[] = ['title', 'like', '%'.$keys.'%'];
         }
 
+        $total = Article::where($where)->count();
+
         $page = $request->getParam('page');
         if ($page == 0) {
             $page == 1;
         }
-        $pagesize = 2;
+        $pagesize = 10;
         $startid = ($page - 1) * $pagesize;
         $list = Article::where($where)->orderBy('id', 'desc')->skip($startid)->take($pagesize)->get(['id', 'title', 'cid', 'hits', 'downs', 'mark', 'created_at']);
         foreach ($list as $key => & $val) {
             $val['cate'] = Catelog::where('id', $val['cid'])->value('title');
         }
         $res['result'] = 'success';
-        $res['data'] = $list;
+        $res['list'] = $list;
+        $res['total'] = $total;
         //$res['data'] = $response->withJson($list);
         return $response->withJson($res);
     }
@@ -51,7 +60,8 @@ class ArticleController extends Controller
         if (isset($arg['id']) && $arg['id'] > 0) {
             $rs = Article::where('is_delete', 0)->find($arg['id']);
             if ($rs) {
-                $res['data'] = $rs;
+                $rs['keywords'] = explode(",", $rs['keywords']);
+                $res['row'] = $rs;
                 $res['result'] = 'success';
             } else {
                 $res['msg'] = '没有数据';
@@ -80,11 +90,15 @@ class ArticleController extends Controller
                 $res['msg'] = $validMsg;
                 return $response->withJson($res);
             }
+
+            $post = $request->getParsedBody();
+            if ($post['keywords']) {
+                $post['keywords'] = implode(',', $post['keywords']);
+            }
             
             $id = $request->getParam('id');
             if ($id > 0) {
                 // 修改
-                $post = $request->getParsedBody();
                 $art = new Article;
                 $rs = $art->where('id', $id)->update($post);
                 if ($rs) {
@@ -95,12 +109,10 @@ class ArticleController extends Controller
                 }
             } else {
                 // 新增
-                $post = $request->getParsedBody();
-
                 $art = new Article;
-                $art->title = $post['title'];
-                $art->content = $post['content'];
-                $art->save();
+                //$art->title = $post['title'];
+                //$art->content = $post['content'];
+                $art->save($post);
                 $aid = $art->id;
                 if ($aid > 0) {
                     Log::addLog('新增文章id:'.$aid.'【'.$post['title'].'】');
@@ -137,6 +149,18 @@ class ArticleController extends Controller
         } else {
             $res['msg'] = '非法提交';
         }
+        return $response->withJson($res);
+    }
+
+    public function getCate($request, $response)
+    {
+        $res = Catelog::where('parentID',0)->where('isshow', 1)->get(['id', 'title']);
+        return $response->withJson($res);
+    }
+
+    public function getTags($request, $response)
+    {
+        $res = Tag::where('is_delete', 0)->get(['id', 'ename', 'tagname']);
         return $response->withJson($res);
     }
 
