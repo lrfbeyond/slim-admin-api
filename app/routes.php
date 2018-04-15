@@ -2,10 +2,9 @@
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
-use App\Middleware\TestMiddleware;
 use App\Middleware\AuthMiddleware;
 
-$app->get('/', 'HomeController:index')->setName('home')->add(new TestMiddleware($container));
+$app->get('/', 'HomeController:index')->setName('home');
 
 $app->get('/article', 'ArticleController:index');
 
@@ -13,13 +12,15 @@ $app->post('/test', 'HomeController:test');
 $app->get('/user', 'MemberController:index');
 
 $app->group('', function () {
+    $this->get('/api/home/getTotals', 'HomeController:getTotals');
     $this->get('/api/home/getOptLog', 'HomeController:getOptLog');
     $this->get('/api/home/getPieData', 'HomeController:getPieData');
-    $this->get('/api/home/getBarData', 'HomeController:getBarData');
+    $this->get('/api/home/getLineData', 'HomeController:getLineData');
 
     $this->get('/api/article', 'ArticleController:index');
     $this->get('/api/article/{id:[0-9]+}', 'ArticleController:detail');
     $this->post('/api/article/update', 'ArticleController:update');
+    $this->post('/api/article/upload', 'ArticleController:upload');
     $this->post('/api/article/delete', 'ArticleController:delete');
     $this->get('/api/article/getCate', 'ArticleController:getCate');
     $this->get('/api/article/getTags', 'ArticleController:getTags');
@@ -31,6 +32,14 @@ $app->group('', function () {
     $this->get('/api/member/{id:[0-9]+}', 'MemberController:detail');
     $this->post('/api/member/update', 'MemberController:update');
     $this->post('/api/member/delete', 'MemberController:delete');
+
+    $this->get('/api/comment', 'CommentController:index');
+    $this->get('/api/comment/{id:[0-9]+}', 'CommentController:detail');
+    $this->post('/api/comment/reply', 'CommentController:reply');
+    $this->post('/api/comment/delete', 'CommentController:delete');
+
+    $this->get('/api/logs', 'LogController:index');
+    $this->post('/api/logs/delete', 'LogController:delete');
     
 })->add(new AuthMiddleware($container));
 

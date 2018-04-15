@@ -8,35 +8,34 @@ use App\Models\Log;
 
 class LogController extends Controller
 {
+    public function _initialize()
+    {
+        parent::_initialize();
+    }
+
     public function index($request, $response)
     {
-        $res['result'] = 'failed';
-
         $where = [];
         $where['is_delete'] = 0;
-        $uname = $request->getParam('uname');
-        if (!empty($uname)) {
-            $where['username'] = $uname;
+        $keys = $request->getParam('keys');
+        if (!empty($keys)) {
+            $where[] = ['event', 'like', '%'.$keys.'%'];
         }
 
         $date = $request->getParam('date');
         if (!empty($date)) {
             $where[] = ['created_at', 'like', $date.'%'];
         }
-
+        $total = Log::where($where)->count();
         $page = $request->getParam('page');
         if ($page == 0) {
             $page == 1;
         }
-        $pagesize = 20;
+        $pagesize = 10;
         $startid = ($page - 1) * $pagesize;
         $list = Log::where($where)->orderBy('id', 'desc')->skip($startid)->take($pagesize)->get(['id', 'username', 'logip', 'event', 'created_at']);
-        // foreach ($list as $key => & $val) {
-        //     $val['cate'] = Catelog::where('id', $val['cid'])->value('title');
-        // }
-        $res['result'] = 'success';
-        $res['data'] = $list;
-        //$res['data'] = $response->withJson($list);
+        $res['list'] = $list;
+        $res['total'] = $total;
         return $response->withJson($res);
     }
 
@@ -51,5 +50,30 @@ class LogController extends Controller
         $log->event = $str;
         $log->created_at = date('Y-m-d H:i:s');
         $log->save();
+    }
+
+    // 删除日志
+    public function delete($request, $response)
+    {
+        $res['result'] = 'failed';
+        if ($request->isPost()) {
+            $ids = $request->getParam('id');
+            $idArr = explode(',', $ids);
+            $i = 0;
+            foreach ($idArr as $key => $val) {
+                $rs = Log::where('id', $val)->update(['is_delete' => 1]);
+                if ($rs) {
+                    $i++;
+                }
+            }
+            if ($i == count($idArr)) {
+                $res['result'] = 'success';
+            } else {
+                $res['msg'] = '删除失败';
+            }
+        } else {
+            $res['msg'] = '非法提交';
+        }
+        return $response->withJson($res);
     }
 }

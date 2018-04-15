@@ -68,6 +68,10 @@ $container['logger'] = function($c) {
 //     return new App\Controller\HomeController($c);
 // };
 
+$container['AuthController'] = function($container) {
+    return new \App\Controllers\AuthController($container);
+};
+
 $container['MemberController'] = function ($container) {
     return new \App\Controllers\MemberController($container);
 };
@@ -80,8 +84,12 @@ $container['ArticleController'] = function($container) {
     return new \App\Controllers\ArticleController($container);
 };
 
-$container['AuthController'] = function($container) {
-    return new \App\Controllers\AuthController($container);
+$container['CommentController'] = function ($container) {
+    return new \App\Controllers\CommentController($container);
+};
+
+$container['LogController'] = function($container) {
+    return new \App\Controllers\LogController($container);
 };
 
 //v::with('App\\Validation\\Rules\\');

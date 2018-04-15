@@ -5,6 +5,8 @@ use Psr\Log\LoggerInterface;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use App\Models\Article;
+use App\Models\Member;
+use App\Models\Comment;
 use App\Models\Log;
 use App\Models\Catelog;
 
@@ -15,6 +17,20 @@ class HomeController extends Controller
         $this->logger->info("haha index");
         $rs = Article::find(502);
         return $rs->title;
+    }
+
+    public function getTotals($request, Response $response)
+    {
+        $totalArticles = Article::where('is_delete', 0)->count();
+        $totalComments = Comment::where('is_delete', 0)->count();
+        $totalMembers = Member::where('is_delete', 0)->count();
+        $res = [
+            'totalArticles' => $totalArticles,
+            'totalComments' => $totalComments,
+            'totalMembers' => $totalMembers
+        ];
+
+        return $response->withJson($res);
     }
 
     // 获取最新操作日志
@@ -53,29 +69,33 @@ class HomeController extends Controller
         return $response->withJson($res);
     }
 
-    // 柱状图-资讯统计-最近30天
-    public function getBarData($request, $response)
+    // 整站折线图统计-最近30天
+    public function getLineData($request, $response)
     {
         $res['result'] = 'failed';
         //try {
-            $catelog = new Catelog;
-            $cate = $catelog->getCate();
-            $data = [];
-            foreach ($cate as $key => $val) {
-                for ($i = 29; $i >= 0; $i--) {
-                    $date = date('Y-m-d', strtotime('-'.$i.' days'));
-                    $data[$key][] = Article::where('cid', $val['id'])->where('created_at', 'like', $date.'%')->where('is_delete', 0)->count();
-                    
-                }
+            $dataArticle = [];
+            $dataMember = [];
+            $dataComment = [];
+            for ($i = 29; $i >= 0; $i--) {
+                $date = date('Y-m-d', strtotime('-'.$i.' days'));
+                $dataArticle[] = Article::where('is_delete', 0)->where('created_at', 'like', $date.'%')->count();
+                $dataMember[] = Member::where('is_delete', 0)->where('created_at', 'like', $date.'%')->count();
+                $dataComment[] = Comment::where('is_delete', 0)->where('created_at', 'like', $date.'%')->count();
+                
             }
             $dates = [];
             for ($i = 29; $i >= 0; $i--) {
                 $dates[] = date('m月d日', strtotime('-'.$i.' days'));
             }
-            $res['date'] = $dates;
-            $res['data'] = $data;
-            $res['cate'] = $cate;
-            $res['result'] = 'success';
+
+            $res = [
+                'result' => 'success',
+                'date' => $dates,
+                'dataArticle' => $dataArticle,
+                'dataMember' => $dataMember,
+                'dataComment' => $dataComment
+            ];
         // } catch (\Exception $e) {
         //     $res['msg'] = '出错了';
         // }

@@ -127,6 +127,11 @@ class ArticleController extends Controller
         return $response->withJson($res);
     }
 
+    public function upload()
+    {
+        //
+    }
+
     // 删除记录-假删除
     public function delete($request, $response)
     {
