@@ -17,24 +17,24 @@ class ArticleController extends Controller
     {
         $res['result'] = 'failed';
 
-        $where = [];
-        $where['is_delete'] = 0;
+        $query = Article::query();
+        $query->where('is_delete', 0);
         $cate = $request->getParam('cate');
         if (!empty($cate)) {
-            $where['cid'] = $cate;
+            $query->where('cid', $cate);
         }
 
         $date = $request->getParam('date');
         if (!empty($date)) {
-            $where[] = ['created_at', 'like', $date.'%'];
+            $query->where('created_at', 'like', $date.'%');
         }
 
         $keys = $request->getParam('keys');
         if (!empty($keys)) {
-            $where[] = ['title', 'like', '%'.$keys.'%'];
+            $query->where('title', 'like', '%'.$keys.'%');
         }
 
-        $total = Article::where($where)->count();
+        $total = $query->count();
 
         $page = $request->getParam('page');
         if ($page == 0) {
@@ -42,7 +42,7 @@ class ArticleController extends Controller
         }
         $pagesize = 10;
         $startid = ($page - 1) * $pagesize;
-        $list = Article::where($where)->orderBy('id', 'desc')->skip($startid)->take($pagesize)->get(['id', 'title', 'cid', 'hits', 'downs', 'mark', 'created_at']);
+        $list = $query->orderBy('id', 'desc')->skip($startid)->take($pagesize)->get(['id', 'title', 'cid', 'hits', 'downs', 'mark', 'created_at']);
         foreach ($list as $key => & $val) {
             $val['cate'] = Catelog::where('id', $val['cid'])->value('title');
         }

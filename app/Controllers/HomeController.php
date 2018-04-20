@@ -104,13 +104,51 @@ class HomeController extends Controller
 
     public function test2($req, $res)
     {
+        $where['is_delete'] = 0;
+        $date = $req->getParam('date');
+        // if (!empty($date)) {
+        //     $where[] = ['created_at', 'like', $date.'%'];
+        // }
+
+        $keys = $req->getParam('keys');
+        // if (!empty($keys)) {
+        //     $where[] = ['title', 'like', '%'.$keys.'%'];
+        // }
+        
+        $query = Article::query();
+        // if (!empty($keys)) {
+        //     $query->where('title', 'like', '%'.$keys.'%');
+        // }
+        if (!empty($date)) {
+            $query->where('created_at', 'like', $date.'%');
+        }
+        $query->when(!empty($keys), function ($q) use ($keys) {
+            return $q->where('title', 'like', '%'.$keys.'%');
+        });
+        $query->where('id', '>=', 100)->orWhere('id', '<=', 300);
+        // $query->where(function ($q) {
+        //     return $q->where('id', '>=', 100);
+        // })->orWhere(function ($q) {
+        //     return $q->where('id', '<=', 300);
+        // });
+        $rs = $query->take(10)->orderBy('id', 'desc')->get(['id','title','created_at']);
+        return $res->withJson($rs);
+        exit;
+
+        // $query->when(request('filter_by') == 'likes', function ($q) {
+        //     return $q->where('likes', '>', request('likes_amount', 0));
+        // });
+        // $query->when(request('filter_by') == 'date', function ($q) {
+        //     return $q->orderBy('created_at', request('ordering_rule', 'desc'));
+        // });
+
         // 查询所有
-        $rs = Article::where('id', '>=', 3)->orderBy('id', 'desc')->get(['id','title']);
+        $rs = Article::where($where)->take(10)->orderBy('id', 'desc')->get(['id','title','created_at']);
         foreach ($rs as $k => $v) {
             //echo $v['title'] . "<br/>";
           //  echo $v->title.'<br/>';
         }
-        
+        return $res->withJson($rs);
         //查询1个
         $rs = Article::find(1);
         //echo $rs->title;

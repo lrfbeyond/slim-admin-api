@@ -16,19 +16,19 @@ class CommentController extends Controller
     // 会员列表
     public function index($request, $response)
     {
-        $where = [];
-        $where['is_delete'] = 0;
-        $where['parents'] = 0;
+        $query = Comment::query();
+        $query->where('is_delete', 0);
+        $query->where('parents', 0);
         $date = $request->getParam('date');
         if (!empty($date)) {
-            $where[] = ['created_at', 'like', $date.'%'];
+            $query->where('created_at', 'like', $date.'%');
         }
 
         $keys = $request->getParam('keys');
         if (!empty($keys)) {
-            $where[] = ['message', 'like', '%'.$keys.'%'];
+            $query->where('message', 'like', '%'.$keys.'%');
         }
-        $total = Comment::where($where)->count();
+        $total = $query->count();
 
         $page = $request->getParam('page');
         if ($page == 0) {
@@ -36,7 +36,7 @@ class CommentController extends Controller
         }
         $pagesize = 10;
         $startid = ($page - 1) * $pagesize;
-        $list = Comment::where($where)->orderBy('id', 'desc')->skip($startid)->take($pagesize)->get(['id', 'article_id', 'author_id', 'ip', 'message', 'is_reply', 'created_at']);
+        $list = $query->orderBy('id', 'desc')->skip($startid)->take($pagesize)->get(['id', 'article_id', 'author_id', 'ip', 'message', 'is_reply', 'created_at']);
         foreach ($list as & $val) {
             $article_id = $val['article_id'];
             if ($article_id == 0) {

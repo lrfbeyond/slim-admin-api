@@ -14,18 +14,18 @@ class MemberController extends Controller
     // 会员列表
     public function index($request, $response)
     {
-        $where = [];
-        $where['is_delete'] = 0;
+        $query = Member::query();
+        $query->where('is_delete', 0);
         $date = $request->getParam('date');
         if (!empty($date)) {
-            $where[] = ['created_at', 'like', $date.'%'];
+            $query->where('created_at', 'like', $date.'%');
         }
 
         $keys = $request->getParam('keys');
         if (!empty($keys)) {
-            $where[] = ['username', 'like', '%'.$keys.'%'];
+            $query->where('username', 'like', '%'.$keys.'%');
         }
-        $total = Member::where($where)->count();
+        $total = $query->count();
 
         $page = $request->getParam('page');
         if ($page == 0) {
@@ -33,7 +33,7 @@ class MemberController extends Controller
         }
         $pagesize = 10;
         $startid = ($page - 1) * $pagesize;
-        $list = Member::where($where)->orderBy('id', 'desc')->skip($startid)->take($pagesize)->get(['id', 'username', 'nickname', 'email', 'login_oauth', 'status', 'created_at']);
+        $list = $query->orderBy('id', 'desc')->skip($startid)->take($pagesize)->get(['id', 'username', 'nickname', 'email', 'login_oauth', 'status', 'created_at']);
         foreach ($list as & $val) {
             $status = $val['status'];
             if ($status == 1) {

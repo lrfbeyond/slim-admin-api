@@ -15,25 +15,25 @@ class LogController extends Controller
 
     public function index($request, $response)
     {
-        $where = [];
-        $where['is_delete'] = 0;
+        $query = Log::query();
+        $query->where('is_delete', 0);
         $keys = $request->getParam('keys');
         if (!empty($keys)) {
-            $where[] = ['event', 'like', '%'.$keys.'%'];
+            $query->where('event', 'like', '%'.$keys.'%');
         }
 
         $date = $request->getParam('date');
         if (!empty($date)) {
-            $where[] = ['created_at', 'like', $date.'%'];
+            $query->where('created_at', 'like', $date.'%');
         }
-        $total = Log::where($where)->count();
+        $total = $query->count();
         $page = $request->getParam('page');
         if ($page == 0) {
             $page == 1;
         }
         $pagesize = 10;
         $startid = ($page - 1) * $pagesize;
-        $list = Log::where($where)->orderBy('id', 'desc')->skip($startid)->take($pagesize)->get(['id', 'username', 'logip', 'event', 'created_at']);
+        $list = $query->orderBy('id', 'desc')->skip($startid)->take($pagesize)->get(['id', 'username', 'logip', 'event', 'created_at']);
         $res['list'] = $list;
         $res['total'] = $total;
         return $response->withJson($res);
