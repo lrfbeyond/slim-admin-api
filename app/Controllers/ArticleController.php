@@ -43,7 +43,7 @@ class ArticleController extends Controller
         }
         $pagesize = 10;
         $startid = ($page - 1) * $pagesize;
-        $list = $query->orderBy('id', 'desc')->skip($startid)->take($pagesize)->get(['id', 'title', 'cid', 'hits', 'downs', 'mark', 'created_at']);
+        $list = $query->orderBy('id', 'desc')->skip($startid)->take($pagesize)->get(['id', 'title', 'cid', 'hits', 'mark', 'created_at']);
         foreach ($list as $key => & $val) {
             $val['cate'] = Catelog::where('id', $val['cid'])->value('title');
         }
@@ -114,6 +114,10 @@ class ArticleController extends Controller
                 }
             } else {
                 // 新增
+                if (empty($post['intro'])) {
+                    $post['intro'] = cutStr(strip_tags($post['content']), 100);
+                }
+                
                 $art = new Article;
                 $art->cid = $post['cid'];
                 $art->title = $post['title'];
