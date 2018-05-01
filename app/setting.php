@@ -21,5 +21,21 @@ return [
             'name' => 'app',
             'path' => __DIR__ . '/../logs/app-'.date('Y-m-d').'.log',
         ],
+        //  后台自定义设置参数
+        'customer' => [
+            // 邮件设置
+            'mailerEnable' => true,
+            'mailserver' => 'smtp.163.com',
+            'mailport' => '25',
+            'mailuser' => 'helloweba@163.com',
+            'mailpass' => '',
+            // 评论开关
+            'commentEnable' => true,
+            'needCheck' => true,
+            // 会员注册开关
+            'regEnable' => true,
+            // 违禁词语
+            'badword' => '傻逼|SB',
+        ],
     ]
 ];

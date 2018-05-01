@@ -40,6 +40,9 @@ $app->group('', function () {
 
     $this->get('/api/logs', 'LogController:index');
     $this->post('/api/logs/delete', 'LogController:delete');
+
+    $this->get('/api/setting', 'SettingController:index');
+    $this->post('/api/setting/setOk', 'SettingController:setOk');
     
 })->add(new AuthMiddleware($container));
 

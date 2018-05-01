@@ -47,6 +47,7 @@ $container['safekey'] = function ($c) {
     return $settings['safekey'];
 };
 
+
 $container['logger'] = function($c) {
     $settings = $c->get('settings');
     $logger = new \Monolog\Logger($settings['logger']['name']);
@@ -90,6 +91,10 @@ $container['CommentController'] = function ($container) {
 
 $container['LogController'] = function($container) {
     return new \App\Controllers\LogController($container);
+};
+
+$container['SettingController'] = function($container) {
+    return new \App\Controllers\SettingController($container);
 };
 
 //v::with('App\\Validation\\Rules\\');
