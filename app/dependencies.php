@@ -69,6 +69,11 @@ $container['logger'] = function($c) {
 //     return new App\Controller\HomeController($c);
 // };
 
+$container['IndexController'] = function($container) {
+    return new \App\Controllers\Home\IndexController($container);
+};
+
+
 $container['AuthController'] = function($container) {
     return new \App\Controllers\AuthController($container);
 };

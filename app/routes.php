@@ -4,50 +4,55 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 use App\Middleware\AuthMiddleware;
 
-$app->get('/', 'HomeController:index')->setName('home');
+//$app->get('/', 'HomeController:index')->setName('home');
 
 $app->get('/article', 'ArticleController:index');
 
 $app->post('/test', 'HomeController:test');
 $app->get('/user', 'MemberController:index');
 
-$app->group('', function () {
-    $this->get('/api/home/getTotals', 'HomeController:getTotals');
-    $this->get('/api/home/getOptLog', 'HomeController:getOptLog');
-    $this->get('/api/home/getPieData', 'HomeController:getPieData');
-    $this->get('/api/home/getLineData', 'HomeController:getLineData');
+$app->group('', function() {
+    $this->get('/', 'IndexController:index');
+});
 
-    $this->get('/api/article', 'ArticleController:index');
-    $this->get('/api/article/{id:[0-9]+}', 'ArticleController:detail');
-    $this->post('/api/article/update', 'ArticleController:update');
-    $this->post('/api/article/upload', 'ArticleController:upload');
-    $this->post('/api/article/delete', 'ArticleController:delete');
-    $this->get('/api/article/getCate', 'ArticleController:getCate');
-    $this->get('/api/article/getTags', 'ArticleController:getTags');
+$app->group('/api', function () {
+    $this->get('/home/getTotals', 'HomeController:getTotals');
+    $this->get('/home/getOptLog', 'HomeController:getOptLog');
+    $this->get('/home/getPieData', 'HomeController:getPieData');
+    $this->get('/home/getLineData', 'HomeController:getLineData');
 
-    $this->post('/api/auth/editpass', 'AuthController:editpass');
-    $this->post('/api/auth/logout', 'AuthController:logout');
+    $this->get('/article', 'ArticleController:index');
+    $this->get('/article/{id:[0-9]+}', 'ArticleController:detail');
+    $this->post('/article/update', 'ArticleController:update');
+    $this->post('/article/upload', 'ArticleController:upload');
+    $this->post('/article/delete', 'ArticleController:delete');
+    $this->get('/article/getCate', 'ArticleController:getCate');
+    $this->get('/article/getTags', 'ArticleController:getTags');
 
-    $this->get('/api/member', 'MemberController:index');
-    $this->get('/api/member/{id:[0-9]+}', 'MemberController:detail');
-    $this->post('/api/member/update', 'MemberController:update');
-    $this->post('/api/member/delete', 'MemberController:delete');
+    $this->post('/auth/editpass', 'AuthController:editpass');
+    $this->post('/auth/logout', 'AuthController:logout');
 
-    $this->get('/api/comment', 'CommentController:index');
-    $this->get('/api/comment/{id:[0-9]+}', 'CommentController:detail');
-    $this->post('/api/comment/reply', 'CommentController:reply');
-    $this->post('/api/comment/delete', 'CommentController:delete');
+    $this->get('/member', 'MemberController:index');
+    $this->get('/member/{id:[0-9]+}', 'MemberController:detail');
+    $this->post('/member/update', 'MemberController:update');
+    $this->post('/member/delete', 'MemberController:delete');
 
-    $this->get('/api/logs', 'LogController:index');
-    $this->post('/api/logs/delete', 'LogController:delete');
+    $this->get('/comment', 'CommentController:index');
+    $this->get('/comment/{id:[0-9]+}', 'CommentController:detail');
+    $this->post('/comment/reply', 'CommentController:reply');
+    $this->post('/comment/delete', 'CommentController:delete');
 
-    $this->get('/api/setting', 'SettingController:index');
-    $this->post('/api/setting/setOk', 'SettingController:setOk');
+    $this->get('/logs', 'LogController:index');
+    $this->post('/logs/delete', 'LogController:delete');
+
+    $this->get('/setting', 'SettingController:index');
+    $this->post('/setting/setOk', 'SettingController:setOk');
     
 })->add(new AuthMiddleware($container));
 
 $app->post('/api/auth', 'AuthController:chkLogin');
 $app->get('/api/auth/captcha', 'AuthController:captcha');
+
 
 // $app->get('/hello/{name}', function (Request $request, Response $response) {
 //     $name = $request->getAttribute('name');
