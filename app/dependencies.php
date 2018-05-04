@@ -42,6 +42,22 @@ $container['db'] = function ($container) use ($capsule) {
     return $capsule;
 };
 
+// Register component on container
+$container['view'] = function ($c) {
+    $view = new \Slim\Views\Twig('../templates', [
+        //'cache' => '../cache/temp',
+        'cache' => false,
+        'debug' => true,
+        'auto_reload' => false,
+    ]);
+    $view->addExtension(new \Slim\Views\TwigExtension(
+        $c['router'],
+        $c['request']->getUri()
+    ));
+
+    return $view;
+};
+
 $container['safekey'] = function ($c) {
     $settings = $c->get('settings');
     return $settings['safekey'];
@@ -88,6 +104,10 @@ $container['HomeController'] = function($container) {
 
 $container['ArticleController'] = function($container) {
     return new \App\Controllers\ArticleController($container);
+};
+
+$container['CatelogController'] = function($container) {
+    return new \App\Controllers\CatelogController($container);
 };
 
 $container['CommentController'] = function ($container) {

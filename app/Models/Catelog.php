@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 class Catelog extends Model
 {
     protected $table = 'catelog';
+    public $timestamps = false;
 
     public function getCate()
     {

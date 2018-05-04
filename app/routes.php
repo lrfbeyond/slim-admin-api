@@ -8,12 +8,17 @@ use App\Middleware\AuthMiddleware;
 
 $app->get('/article', 'ArticleController:index');
 
-$app->post('/test', 'HomeController:test');
 $app->get('/user', 'MemberController:index');
 
 $app->group('', function() {
     $this->get('/', 'IndexController:index');
+    $this->get('/test', 'IndexController:test');
 });
+$app->get('/hello/{name}', function ($request, $response, $args) {
+    return $this->view->render($response, 'profile.html', [
+        'name' => $args['name']
+    ]);
+})->setName('profile');
 
 $app->group('/api', function () {
     $this->get('/home/getTotals', 'HomeController:getTotals');
@@ -28,6 +33,12 @@ $app->group('/api', function () {
     $this->post('/article/delete', 'ArticleController:delete');
     $this->get('/article/getCate', 'ArticleController:getCate');
     $this->get('/article/getTags', 'ArticleController:getTags');
+
+    $this->get('/catelog', 'CatelogController:index');
+    $this->get('/catelog/getCateTree', 'CatelogController:getCateTree');
+    $this->get('/catelog/{id:[0-9]+}', 'CatelogController:detail');
+    $this->post('/catelog/update', 'CatelogController:update');
+    $this->post('/catelog/delete', 'CatelogController:delete');
 
     $this->post('/auth/editpass', 'AuthController:editpass');
     $this->post('/auth/logout', 'AuthController:logout');

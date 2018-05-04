@@ -17,7 +17,8 @@
         "illuminate/database": "^5.4",
         "respect/validation": "^1.1",
         "gregwar/captcha": "^1.1",
-        "lrfbeyond/uploader": "1.0"
+        "lrfbeyond/uploader": "1.0",
+        "slim/twig-view": "^2.3"
     },
     "autoload": {
         "psr-4": {
