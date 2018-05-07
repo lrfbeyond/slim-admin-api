@@ -13,6 +13,10 @@ class Catelog extends Validator
         'pid' => [
             'intVal' => '类别必须为数字',
             'notEmpty' => '类别不能为空',
-        ]
+        ],
+        'sort' => [
+            'intVal' => '排序必须为数字',
+            'notEmpty' => '排序不能为空',
+        ],
     ];
 }

@@ -53,6 +53,17 @@ $app->group('/api', function () {
     $this->post('/comment/reply', 'CommentController:reply');
     $this->post('/comment/delete', 'CommentController:delete');
 
+    $this->get('/admin', 'AdminController:index');
+    $this->get('/admin/{id:[0-9]+}', 'AdminController:detail');
+    $this->post('/admin/update', 'AdminController:update');
+    $this->post('/admin/delete', 'AdminController:delete');
+    $this->post('/admin/resetPass', 'AdminController:resetPass');
+
+    $this->get('/role', 'RoleController:index');
+    $this->get('/role/{id:[0-9]+}', 'RoleController:detail');
+    $this->post('/role/update', 'RoleController:update');
+    $this->post('/role/delete', 'RoleController:delete');
+
     $this->get('/logs', 'LogController:index');
     $this->post('/logs/delete', 'LogController:delete');
 

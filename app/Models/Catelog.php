@@ -10,7 +10,7 @@ class Catelog extends Model
 
     public function getCate()
     {
-        $cate = $this->where('parentID',0)->where('is_delete', 0)->get(['id', 'title']);
+        $cate = $this->where('pid',0)->where('is_delete', 0)->get(['id', 'title']);
         return $cate;
     }
 }

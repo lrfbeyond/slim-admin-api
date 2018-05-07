@@ -4,32 +4,20 @@ namespace App\Controllers;
 use Psr\Log\LoggerInterface;
 use Slim\Http\Request;
 use Slim\Http\Response;
-use App\Models\Article;
-use App\Models\Catelog;
-use App\Models\Tag;
+use App\Models\Role;
 use Respect\Validation\Validator as v;
-use App\Validate\Article as valid;
+use App\Validate\Role as valid;
 use App\Controllers\LogController as Log;
-use Upload\File;
-use Illuminate\Database\Capsule\Manager as DB;
 
-class ArticleController extends Controller
+class RoleController extends Controller
 {
+    // 管理员列表
     public function index($request, $response)
     {
         $res['result'] = 'failed';
 
-        $query = Article::query();
+        $query = Role::query();
         $query->where('is_delete', 0);
-        $cate = $request->getParam('cate');
-        if (!empty($cate)) {
-            $query->where('cid', $cate);
-        }
-
-        $date = $request->getParam('date');
-        if (!empty($date)) {
-            $query->where('created_at', 'like', $date.'%');
-        }
 
         $keys = $request->getParam('keys');
         if (!empty($keys)) {
@@ -44,14 +32,10 @@ class ArticleController extends Controller
         }
         $pagesize = 10;
         $startid = ($page - 1) * $pagesize;
-        $list = $query->orderBy('id', 'desc')->skip($startid)->take($pagesize)->get(['id', 'title', 'cid', 'hits', 'mark', 'created_at']);
-        foreach ($list as $key => & $val) {
-            $val['cate'] = Catelog::where('id', $val['cid'])->value('title');
-        }
+        $list = $query->skip($startid)->take($pagesize)->get(['id', 'title', 'intro']);
         $res['result'] = 'success';
         $res['list'] = $list;
         $res['total'] = $total;
-        //$res['data'] = $response->withJson($list);
         return $response->withJson($res);
     }
 
@@ -192,29 +176,5 @@ class ArticleController extends Controller
             $res['msg'] = '非法提交';
         }
         return $response->withJson($res);
-    }
-
-    public function getCate($request, $response)
-    {
-        $depList = $this->getCateTree();
-        return $response->withJson($depList);
-        // $list = DB::table('catelog')->where('is_delete', 0)->get(['id', 'pid', 'title', 'sort']);
-        // $object =  json_decode(json_encode($list), true);
-        // return $this->myTree($object);
-        // $res = Catelog::where('pid',0)->where('is_delete', 0)->get(['id', 'title']);
-        // return $response->withJson($res);
-    }
-
-    public function getTags($request, $response)
-    {
-        $res = Tag::where('is_delete', 0)->get(['id', 'ename', 'tagname']);
-        return $response->withJson($res);
-    }
-
-    public function test()
-    {
-        $number = 123;
-        $rs = v::numeric()->validate($number); 
-        print_r($rs);
     }
 }

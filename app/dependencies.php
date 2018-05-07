@@ -114,6 +114,15 @@ $container['CommentController'] = function ($container) {
     return new \App\Controllers\CommentController($container);
 };
 
+$container['AdminController'] = function($container) {
+    return new \App\Controllers\AdminController($container);
+};
+
+$container['RoleController'] = function($container) {
+    return new \App\Controllers\RoleController($container);
+};
+
+
 $container['LogController'] = function($container) {
     return new \App\Controllers\LogController($container);
 };

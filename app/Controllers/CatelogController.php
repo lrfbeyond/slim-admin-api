@@ -14,7 +14,7 @@ class CatelogController extends Controller
 {
     public function index($request, $response)
     {
-        $depList = $this->getDepartTree();
+        $depList = $this->getCateTree();
         return $response->withJson($depList);
     }
 
@@ -45,7 +45,8 @@ class CatelogController extends Controller
         if ($request->isPost()) {
             $rules = [
                 'title' => v::stringType()->notEmpty()->length(null, 64),
-                'pid' => v::intVal()->notEmpty(),
+                'pid' => v::intVal(),
+                'sort' => v::intVal(),
             ];
 
             $valid = new valid;
@@ -60,6 +61,12 @@ class CatelogController extends Controller
             $id = $request->getParam('id');
             if ($id > 0) {
                 // 修改
+                $hasId = Catelog::where('is_delete', 0)->where('pid', $post['pid'])->where('title', $post['title'])->where('id', '<>', $id)->count();
+                if ($hasId > 0) {
+                    $res['msg'] = '该分类已存在！';
+                    return $response->withJson($res);
+                }
+
                 $mod = new Catelog;
                 $rs = $mod->where('id', $id)->update($post);
                 if ($rs) {
@@ -69,6 +76,11 @@ class CatelogController extends Controller
                     $res['msg'] = '修改失败';
                 }
             } else {
+                $hasId = Catelog::where('is_delete', 0)->where('pid', $post['pid'])->where('title', $post['title'])->count();
+                if ($hasId > 0) {
+                    $res['msg'] = '该分类已存在！';
+                    return $response->withJson($res);
+                }
                 // 新增
                 $mod = new Catelog;
                 $mod->pid = $post['pid'];
@@ -121,37 +133,12 @@ class CatelogController extends Controller
         return $response->withJson($res);
     }
 
-    public function getCateTree($request, $response)
+    public function getCatelogTree($request, $response)
     {
         $list = DB::table('catelog')->where('is_delete', 0)->get(['id', 'pid', 'title', 'sort']);
         $data =  json_decode(json_encode($list), true);
         $tree = $this->getTree($data);
         return $response->withJson($tree);
-    }
-
-    // 获取树状结构
-    private function getDepartTree()
-    {
-        $list = DB::table('catelog')->where('is_delete', 0)->get(['id', 'pid', 'title', 'sort']);
-        $object =  json_decode(json_encode($list), true);
-        return $this->myTree($object);
-    }
-
-    static public $treeList = [];
-
-    static public function myTree(&$data, $pid = 0, $count = 1)
-    {
-        foreach ($data as $key => $val){
-            if($val['pid'] == $pid){
-                $val['level'] = $count;
-                $val['label'] = str_repeat('&nbsp;&nbsp;', $count).'├─ '.$val['title'];
-                //$val['rawTtitle'] = 
-                self::$treeList [] = $val;
-                unset($data[$key]);
-                self::myTree($data, $val['id'], $count + 1);
-            }
-        }
-        return self::$treeList;
     }
 
     private function getTree($data, $pid = 0, $deep = 0)
