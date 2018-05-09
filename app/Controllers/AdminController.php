@@ -170,9 +170,11 @@ class AdminController extends Controller
             $idArr = explode(',', $ids);
             $i = 0;
             foreach ($idArr as $key => $val) {
-                $rs = Admin::where('id', $val)->update(['is_delete' => 1]);
-                if ($rs) {
-                    $i++;
+                $i++;
+                if ($val == '1') {
+                    continue;
+                } else {
+                    $rs = Admin::where('id', $val)->update(['is_delete' => 1]);
                 }
             }
             if ($i == count($idArr)) {

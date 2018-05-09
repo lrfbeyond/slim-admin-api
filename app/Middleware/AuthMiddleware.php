@@ -22,6 +22,7 @@ class AuthMiddleware
         //         'msg' => '未登录'
         //     ];
         //     return $response->withJson($data);
+        //     return $response->withStatus(401);
         // }
         
         $response = $next($request, $response);

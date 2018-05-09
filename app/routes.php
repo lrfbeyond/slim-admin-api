@@ -4,7 +4,14 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 use App\Middleware\AuthMiddleware;
 
+use App\Middleware\Mode;
+use App\Middleware\PermissionMiddleware;
+
 //$app->get('/', 'HomeController:index')->setName('home');
+
+$permissionMiddleware = new PermissionMiddleware(['/admin(.*)', '/utest'], Mode::DENY);
+
+$app->get('/utest', 'IndexController:utest')->add($permissionMiddleware);
 
 $app->get('/article', 'ArticleController:index');
 
@@ -63,6 +70,7 @@ $app->group('/api', function () {
     $this->get('/role/{id:[0-9]+}', 'RoleController:detail');
     $this->post('/role/update', 'RoleController:update');
     $this->post('/role/delete', 'RoleController:delete');
+    $this->get('/role/getPermission', 'RoleController:getPermission');
 
     $this->get('/logs', 'LogController:index');
     $this->post('/logs/delete', 'LogController:delete');

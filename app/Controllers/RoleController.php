@@ -8,10 +8,11 @@ use App\Models\Role;
 use Respect\Validation\Validator as v;
 use App\Validate\Role as valid;
 use App\Controllers\LogController as Log;
+use Illuminate\Database\Capsule\Manager as DB;
 
 class RoleController extends Controller
 {
-    // 管理员列表
+    // 列表
     public function index($request, $response)
     {
         $res['result'] = 'failed';
@@ -39,16 +40,21 @@ class RoleController extends Controller
         return $response->withJson($res);
     }
 
-    // 获取文章详情
+    // 获取详情
     public function detail($request, $response, $arg)
     {
         $res['result'] = 'failed';
         if (isset($arg['id']) && $arg['id'] > 0) {
-            $rs = Article::where('is_delete', 0)->find($arg['id']);
+            $rs = Role::where('is_delete', 0)->select('id','title','intro','permission')->find($arg['id']);
             if ($rs) {
-                $rs['keywords'] = explode(",", $rs['keywords']);
-                $rs['isorig'] = $rs['isorig'] == 1 ? true : false;
-                $rs['ishot'] = $rs['ishot'] == 1 ? true : false;
+                $permission = explode(',', $rs['permission']);
+                $checked = [];
+                foreach ($permission as $key => $val) {
+                    $checked[] = (int)$val;
+                }
+
+                $rs['checked'] = $checked;
+                unset($rs['permission']);
                 $res['row'] = $rs;
                 $res['result'] = 'success';
             } else {
@@ -61,16 +67,14 @@ class RoleController extends Controller
         return $response->withJson($res);
     }
 
-    // 修改文章/新增
+    // 修改/新增
     public function update($request, $response)
     {
         $res['result'] = 'failed';
 
         if ($request->isPost()) {
             $rules = [
-                'title' => v::stringType()->notEmpty()->length(null, 64),
-                'cid' => v::intVal()->notEmpty(),
-                'content' => v::notEmpty(),
+                'title' => v::stringType()->notEmpty()->length(null, 64)
             ];
 
             $valid = new valid;
@@ -81,43 +85,31 @@ class RoleController extends Controller
             }
 
             $post = $request->getParsedBody();
-
-            if ($post['keywords']) {
-                $post['keywords'] = implode(',', $post['keywords']);
-            }
+            $permission = implode(',', $post['checked']);
             
             $id = $request->getParam('id');
             if ($id > 0) {
                 // 修改
-                $art = new Article;
-                $rs = $art->where('id', $id)->update($post);
+                $mod = new Role;
+                $post['permission'] = $permission;
+                unset($post['checked']);
+                $rs = $mod->where('id', $id)->update($post);
                 if ($rs) {
-                    Log::addLog('修改文章id:'.$id.'【'.$post['title'].'】');
+                    Log::addLog('修改角色id:'.$id.'【'.$post['title'].'】');
                     $res['result'] = 'success';
                 } else {
                     $res['msg'] = '修改失败';
                 }
             } else {
                 // 新增
-                if (empty($post['intro'])) {
-                    $post['intro'] = cutStr(strip_tags($post['content']), 100);
-                }
-                
-                $art = new Article;
-                $art->cid = $post['cid'];
-                $art->title = $post['title'];
-                $art->keywords = $post['keywords'];
-                $art->intro = $post['intro'];
-                $art->author = $post['author'];
-                $art->source = $post['source'];
-                $art->pic = $post['pic'];
-                $art->ishot = $post['ishot'];
-                $art->isorig = $post['isorig'];
-                $art->content = $post['content'];
-                $art->save();
-                $aid = $art->id;
+                $mod = new Role;
+                $mod->title = $post['title'];
+                $mod->intro = $post['intro'];
+                $mod->permission = $permission;
+                $mod->save();
+                $aid = $mod->id;
                 if ($aid > 0) {
-                    Log::addLog('新增文章id:'.$aid.'【'.$post['title'].'】');
+                    Log::addLog('新增角色id:'.$aid.'【'.$post['title'].'】');
                     $res['result'] = 'success';
                 } else {
                     $res['msg'] = '新增失败';
@@ -129,29 +121,6 @@ class RoleController extends Controller
         return $response->withJson($res);
     }
 
-    public function upload($request, $response)
-    {
-        $res['result'] = 'failed';
-        $upfile = $_FILES["file"];
-        if ($upfile) {
-            $file = new File($upfile);
-
-            $file->validate = [
-                'size' => 500*1024,
-                'ext' => 'jpg,png,gif'
-            ];
-
-            $upload_dir =  '..'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'uploads';
-
-            $info = $file->upload($upload_dir);
-            $res['result'] = 'success';
-            $savename = str_replace('\\','/',$info['savename']);
-            $res['savename'] = $savename;
-        } else {
-            $res['msg'] = '上传失败！';
-        }
-        return $response->withJson($res);
-    }
 
     // 删除记录-假删除
     public function delete($request, $response)
@@ -162,9 +131,11 @@ class RoleController extends Controller
             $idArr = explode(',', $ids);
             $i = 0;
             foreach ($idArr as $key => $val) {
-                $rs = Article::where('id', $val)->update(['is_delete' => 1]);
-                if ($rs) {
-                    $i++;
+                $i++;
+                if ($val == '1') {
+                    continue;
+                } else {
+                    $rs = Role::where('id', $val)->update(['is_delete' => 1]);
                 }
             }
             if ($i == count($idArr)) {
@@ -176,5 +147,46 @@ class RoleController extends Controller
             $res['msg'] = '非法提交';
         }
         return $response->withJson($res);
+    }
+
+    // 获取角色权限列表
+    public function getPermission($request, $response)
+    {
+        $res['result'] = 'failed';
+        if (isset($arg['id']) && $arg['id'] > 0) {
+            $rs = DB::table('permission')->where('is_delete', 0)->find($arg['id']);
+            if ($rs) {
+                $res['row'] = $rs;
+                $res['result'] = 'success';
+            } else {
+                $res['msg'] = '没有数据';
+            }
+            
+        } else {
+            $list = DB::table('permission')->where('is_delete', 0)->orderBy('sort')->get(['id', 'title', 'pid']);
+            $data =  json_decode(json_encode($list), true);
+            $res['result'] = 'success';
+            $res['row'] = $this->getTree($data);
+            $res['checked'] = [6, 13];
+        }
+        return $response->withJson($res);
+    }
+
+    private function getTree($data, $pid = 0, $deep = 0)
+    {
+        $tree = [];
+        
+        foreach($data as $k => $v) {
+            if ($pid == 0) {
+                $v['checked'] = [];
+            }
+            if($v['pid'] == $pid) {
+                $v['deep'] = $deep;
+                unset($data[$k]);
+                $v['child'] = $this->getTree($data, $v['id'], $deep+1);
+                $tree[] = $v;
+            }
+        }
+        return $tree;
     }
 }

@@ -86,4 +86,9 @@ class IndexController extends Controller
         }
         return $tree;
     }
+
+    public function utest($request, $response)
+    {
+        echo '123';
+    }
 }
