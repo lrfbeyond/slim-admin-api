@@ -1,6 +1,8 @@
 <?php 
 namespace App\Middleware;
 
+use \Psr\Http\Message\RequestInterface as Request;
+use \Psr\Http\Message\ResponseInterface as Response;
 
 class AuthMiddleware
 {
@@ -15,15 +17,15 @@ class AuthMiddleware
     {
         //$response->getBody()->write('BEFORE');
         $hasLogin = $this->chkSign();
-        // if (false === $hasLogin) {
-        //     $data = [
-        //         'result' => 'failed',
-        //         'code' => -1,
-        //         'msg' => '未登录'
-        //     ];
-        //     return $response->withJson($data);
-        //     return $response->withStatus(401);
-        // }
+        if (false === $hasLogin) {
+            $data = [
+                'result' => 'failed',
+                'code' => -1,
+                'msg' => '未登录'
+            ];
+            return $response->withJson($data);
+            // return $response->withStatus(401);
+        }
         
         $response = $next($request, $response);
         //$response->getBody()->write('AFTER');
