@@ -5,10 +5,12 @@ use Psr\Log\LoggerInterface;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use App\Models\Admin;
+use App\Models\Role;
 use Respect\Validation\Validator as v;
 use App\Validate\Admin as valid;
 use App\Controllers\LogController as Log;
 use Gregwar\Captcha\CaptchaBuilder;
+use Illuminate\Database\Capsule\Manager as DB;
 
 class AuthController extends Controller
 {
@@ -24,7 +26,7 @@ class AuthController extends Controller
         if ($request->isPost()) {
             $post = $request->getParsedBody();
             $username = injectCheck(htmlentities($post['username']));
-            $rs = Admin::where('admin_name', $username)->where('is_delete', 0)->first(['id','admin_name','password','realname']);
+            $rs = Admin::where('admin_name', $username)->where('is_delete', 0)->first(['id','admin_name','password','realname','role_id']);
             if ($rs) {
                 // 验证码
                 if ($post['code'] !== $_SESSION['hw-cphrase']) {
@@ -45,6 +47,11 @@ class AuthController extends Controller
                         'login_time' => time()
                     ];
                     $_SESSION['admin_auth'] = $auth;
+
+                    // 获取当前用户角色权限
+                    $_SESSION['admin_permission'] = $this->getUserPermission($rs['role_id']);
+                    //print_r($_SESSION);exit;
+
                     $key = $this->safekey; //安全密钥
                     //$token = dataAuthSign($auth, $key);
                     //$_SESSION['admin_auth_sign'] = $token;
@@ -136,6 +143,26 @@ class AuthController extends Controller
         $_SESSION['hw-cphrase'] = $builder->getPhrase();
         header('Content-type: image/jpeg');
         $builder->output();
+    }
+
+    // 获取当前用户角色权限
+    private function getUserPermission($role_id)
+    {
+        $rs = Role::where('id', $role_id)->where('is_delete', 0)->first(['permission']);
+        if ($rs) {
+            $permission = explode(',', $rs['permission']);
+            $perm = [];
+            foreach ($permission as $key => $val) {
+                $pers = DB::table('permission')->where('id', $val)->value('url');
+                if ($pers) {
+                    $perm[] = $pers;
+                }
+                 
+            }
+            return $perm;
+        } else {
+            return false;
+        }
     }
 }
 
